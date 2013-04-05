@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<config>
+    <modules>
+        <Aligent_GeoIP>
+            <version>0.0.0</version>
+        </Aligent_GeoIP>
+    </modules>
+    <global>
+        <helpers>
+            <aligent_geoip>
+                <class>Aligent_GeoIP_Helper</class>
+            </aligent_geoip>
+        </helpers>
+    </global>
+</config>
