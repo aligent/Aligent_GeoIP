@@ -1,0 +1,31 @@
+- #0
+  - 
+  - false
+- #1
+  - HTTP_CLIENT_IP: 192.168.1.1
+  - false
+- #2
+  - HTTP_CLIENT_IP: 203.84.217.229
+  - AU
+- #3
+  - HTTP_X_GEOIP: GB
+  - GB
+- #4
+  - HTTP_X_FORWARDED_FOR: 212.58.251.195
+    HTTP_X_GEOIP: Unknown
+  - GB
+- #5
+  - HTTP_X_FORWARDED: 127.0.0.1
+  - false
+- #6
+  - HTTP_X_FORWARDED: 127.0.0.1
+    HTTP_X_GEOIP: GB
+  - GB
+- #7
+  - HTTP_X_FORWARDED: 127.0.0.1
+    HTTP_X_GEOIP: Unknown
+  - false
+- #8 Shouldn't be possible in the real world, but should work
+  - HTTP_X_FORWARDED: 212.58.251.195 #GB
+    HTTP_X_GEOIP: AU
+  - AU

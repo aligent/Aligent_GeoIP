@@ -12,4 +12,11 @@
             </aligent_geoip>
         </helpers>
     </global>
+    <phpunit>
+        <suite>
+            <modules>
+                <Aligent_GeoIP/>
+            </modules>
+        </suite>
+    </phpunit>
 </config>
