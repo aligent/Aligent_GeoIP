@@ -1,6 +1,7 @@
 <?php
 
 require_once 'geoip/geoip.inc';
+require_once 'geoip/geoipcity.inc';
 
 /**
  * @description    GeoIP helper functions
@@ -52,6 +53,15 @@ class Aligent_GeoIP_Helper_Data
         $country = geoip_country_code_by_addr($gi, $ipAddr);
         geoip_close($gi);
         return $country != '' ? $country : false;
+    }
+
+
+    public function getRecordByIpv4Addr()
+    {
+        $ip = $this->getUserIpv4Addr();
+        $gi = geoip_open("geoip/GeoLiteCity.dat",GEOIP_STANDARD);
+        $record = geoip_record_by_addr($gi,$ip);
+        return $record;
     }
 
     /**
