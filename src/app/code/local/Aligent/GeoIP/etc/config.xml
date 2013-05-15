@@ -11,6 +11,22 @@
                 <class>Aligent_GeoIP_Helper</class>
             </aligent_geoip>
         </helpers>
+        <models>
+            <aligent_geoip>
+                <class>Aligent_GeoIP_Model</class>
+            </aligent_geoip>
+        </models>
+        <events>
+            <http_response_send_before>
+                <observers>
+                    <aligent_geoip>
+                        <type>singleton</type>
+                        <class>aligent_geoip/observer</class>
+                        <method>setVarnishResponseHeader</method>
+                    </aligent_geoip>
+                </observers>
+            </http_response_send_before>
+        </events>
     </global>
     <phpunit>
         <suite>
