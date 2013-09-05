@@ -17,6 +17,7 @@ class Aligent_GeoIP_Helper_Data
 {
 
     const VARNISH_XGEOIP_SERVER_VARIABLE = 'HTTP_X_GEOIP';
+    const VARNISH_XGEOIP_SERVER_HEADER = 'X-GeoIP';
 
     /**
      * Autodetects the country based on the following fallback mechanism: 1. Varnish, 2. The user's IP.
