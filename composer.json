@@ -5,6 +5,7 @@
   "homepage":"https://github.com/aligent/Aligent_GeoIP",
   "description":"This module provides a helper for various GeoIP related functions.",
   "require":{
-    "magento-hackathon/magento-composer-installer":"*"
+      "magento-hackathon/magento-composer-installer":"*",
+      "geoip/geoip": "v1.14"
   }
 }
