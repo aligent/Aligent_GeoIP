@@ -1,7 +1,13 @@
 <?php
 
-require_once 'geoip/geoip.inc';
-require_once 'geoip/geoipcity.inc';
+// Require files from composer package if available, otherwise fall back to old location.
+if (file_exists(MAGENTO_ROOT."/vendor/geoip/geoip/src/geoip.inc")) {
+    require_once MAGENTO_ROOT."/vendor/geoip/geoip/src/geoip.inc";
+    require_once MAGENTO_ROOT."/vendor/geoip/geoip/src/geoipcity.inc";
+} else {
+    require_once 'geoip/geoip.inc';
+    require_once 'geoip/geoipcity.inc';
+}
 
 /**
  * @description    GeoIP helper functions
