@@ -33,6 +33,12 @@ class Aligent_GeoIP_Helper_Data
     {
         $country = false;
         $detectionMethods = array(
+            function() {
+                if (!Mage::getIsDeveloperMode()) {
+                    return false;
+                }
+                return Mage::app()->getRequest()->getParam('___pretend_country', false);
+            },
             array($this, 'getCountryFromVarnish'),
             function () {
                 $geoipHelper = Mage::helper('aligent_geoip');
