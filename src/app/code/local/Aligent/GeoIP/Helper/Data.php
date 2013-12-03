@@ -19,8 +19,7 @@ if (file_exists(Mage::getBaseDir()."/vendor/geoip/geoip/src/geoip.inc")) {
  *
  * @author         Luke Mills <luke@aligent.com.au>
  */
-class Aligent_GeoIP_Helper_Data
-{
+class Aligent_GeoIP_Helper_Data extends Mage_Core_Helper_Abstract {
 
     const VARNISH_XGEOIP_SERVER_VARIABLE = 'HTTP_X_GEOIP';
     const VARNISH_XGEOIP_SERVER_HEADER = 'X-GeoIP';

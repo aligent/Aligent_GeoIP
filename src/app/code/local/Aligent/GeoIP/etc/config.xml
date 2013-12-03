@@ -2,7 +2,7 @@
 <config>
     <modules>
         <Aligent_GeoIP>
-            <version>0.0.0</version>
+            <version>0.1.0</version>
         </Aligent_GeoIP>
     </modules>
     <global>
@@ -16,6 +16,13 @@
                 <class>Aligent_GeoIP_Model</class>
             </aligent_geoip>
         </models>
+        <resources>
+            <aligent_geoip_setup>
+                <setup>
+                    <module>Aligent_GeoIP</module>
+                </setup>
+            </aligent_geoip_setup>
+        </resources>
         <events>
             <http_response_send_before>
                 <observers>
@@ -28,6 +35,27 @@
             </http_response_send_before>
         </events>
     </global>
+    <adminhtml>
+        <acl>
+            <resources>
+                <admin>
+                    <children>
+                        <system>
+                            <children>
+                                <config>
+                                    <children>
+                                        <aligent_geoip>
+                                            <title>Aligent GeoIP Configuration</title>
+                                        </aligent_geoip>
+                                    </children>
+                                </config>
+                            </children>
+                        </system>
+                    </children>
+                </admin>
+            </resources>
+        </acl>
+    </adminhtml>
     <phpunit>
         <suite>
             <modules>
