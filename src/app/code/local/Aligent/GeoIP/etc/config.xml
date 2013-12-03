@@ -23,6 +23,8 @@
                 </setup>
             </aligent_geoip_setup>
         </resources>
+    </global>
+    <frontend>
         <events>
             <http_response_send_before>
                 <observers>
@@ -33,8 +35,17 @@
                     </aligent_geoip>
                 </observers>
             </http_response_send_before>
+            <controller_action_predispatch>
+                <observers>
+                    <aligent_geoip>
+                        <type>singleton</type>
+                        <class>aligent_geoip/observer</class>
+                        <method>enforceCountryGeoblock</method>
+                    </aligent_geoip>
+                </observers>
+            </controller_action_predispatch>
         </events>
-    </global>
+    </frontend>
     <adminhtml>
         <acl>
             <resources>
