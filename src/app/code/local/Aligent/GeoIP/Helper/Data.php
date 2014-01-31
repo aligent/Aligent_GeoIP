@@ -4,6 +4,9 @@
 if (file_exists(Mage::getBaseDir()."/vendor/geoip/geoip/src/geoip.inc")) {
     require_once Mage::getBaseDir()."/vendor/geoip/geoip/src/geoip.inc";
     require_once Mage::getBaseDir()."/vendor/geoip/geoip/src/geoipcity.inc";
+} elseif (file_exists(Mage::getBaseDir()."/geoip/geoip.inc")) {
+    require_once Mage::getBaseDir()."/geoip/geoip.inc";
+    require_once Mage::getBaseDir()."/geoip/geoipcity.inc";
 } else {
     require_once 'geoip/geoip.inc';
     require_once 'geoip/geoipcity.inc';
