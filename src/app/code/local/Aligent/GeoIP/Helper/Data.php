@@ -64,7 +64,7 @@ class Aligent_GeoIP_Helper_Data extends Mage_Core_Helper_Abstract {
     public function getCountryByIpv4Addr($ipAddr)
     {
         $country = null;
-        $gi = geoip_open('geoip/GeoIP.dat', GEOIP_STANDARD);
+        $gi = $this->geoipOpen('geoip/GeoIP.dat', GEOIP_STANDARD);
         $country = geoip_country_code_by_addr($gi, $ipAddr);
         geoip_close($gi);
         return $country != '' ? $country : false;
@@ -74,7 +74,7 @@ class Aligent_GeoIP_Helper_Data extends Mage_Core_Helper_Abstract {
     public function getRecordByIpv4Addr()
     {
         $ip = $this->getUserIpv4Addr();
-        $gi = geoip_open("geoip/GeoLiteCity.dat",GEOIP_STANDARD);
+        $gi = $this->geoipOpen("geoip/GeoLiteCity.dat",GEOIP_STANDARD);
         $record = geoip_record_by_addr($gi,$ip);
         return $record;
     }
@@ -115,6 +115,30 @@ class Aligent_GeoIP_Helper_Data extends Mage_Core_Helper_Abstract {
             }
         }
         return false;
+    }
+
+    private function geoipOpen($filename, $flags) {
+        $_filename = $filename;
+        try {
+            // First look for file on the include path
+            if ((function_exists('stream_resolve_include_path') && $_filename = stream_resolve_include_path($filename)) === false) {
+                // Then look for the file relative to the Magento root.
+                if (!file_exists($_filename = Mage::getBaseDir() . DS . $filename)) {
+                    throw new Exception (sprintf('Unable to find file: "%s"', $filename));
+                }
+            }
+            return geoip_open($_filename, $flags);
+        } catch (Exception $e) {
+            $message = $e->getMessage();
+            $message .= PHP_EOL;
+            $message .= sprintf('include_path = %s', get_include_path());
+            $message .= PHP_EOL;
+            $message .= sprintf('cwd = %s', getcwd());
+            $message .= PHP_EOL;
+            $file = Mage::getStoreConfig('dev/log/exception_file');
+            Mage::log("\n" . $message . $e->__toString(), Zend_Log::ERR, $file);
+            throw $e;
+        }
     }
 
 }
