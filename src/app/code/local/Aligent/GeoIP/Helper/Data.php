@@ -118,12 +118,18 @@ class Aligent_GeoIP_Helper_Data extends Mage_Core_Helper_Abstract {
     }
 
     private function geoipOpen($filename, $flags) {
-        $_filename = $filename;
+        $_filename = false;
         try {
             // First look for file on the include path
-            if ((function_exists('stream_resolve_include_path') && $_filename = stream_resolve_include_path($filename)) === false) {
-                // Then look for the file relative to the Magento root.
-                if (!file_exists($_filename = Mage::getBaseDir() . DS . $filename)) {
+            if (function_exists('stream_resolve_include_path')) {
+                $_filename = stream_resolve_include_path($filename);
+
+            }
+
+            // Then look for the file relative to the Magento root.
+            if ($_filename === false) {
+                $_filename = Mage::getBaseDir() . DS . $filename;
+                if (!file_exists($_filename)) {
                     throw new Exception (sprintf('Unable to find file: "%s"', $filename));
                 }
             }
