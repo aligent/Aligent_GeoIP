@@ -1,49 +1,55 @@
 <?php
 
+// @codingStandardsIgnoreStart
 // Require files from composer package if available, otherwise fall back to old location.
-if (file_exists(Mage::getBaseDir()."/vendor/geoip/geoip/src/geoip.inc")) {
-    require_once Mage::getBaseDir()."/vendor/geoip/geoip/src/geoip.inc";
-    require_once Mage::getBaseDir()."/vendor/geoip/geoip/src/geoipcity.inc";
-} elseif (file_exists(Mage::getBaseDir()."/geoip/geoip.inc")) {
-    require_once Mage::getBaseDir()."/geoip/geoip.inc";
-    require_once Mage::getBaseDir()."/geoip/geoipcity.inc";
+if (file_exists(Mage::getBaseDir() . "/vendor/geoip/geoip/src/geoip.inc")) {
+    require_once Mage::getBaseDir() . "/vendor/geoip/geoip/src/geoip.inc";
+    require_once Mage::getBaseDir() . "/vendor/geoip/geoip/src/geoipcity.inc";
+} elseif (file_exists(Mage::getBaseDir() . "/geoip/geoip.inc")) {
+    require_once Mage::getBaseDir() . "/geoip/geoip.inc";
+    require_once Mage::getBaseDir() . "/geoip/geoipcity.inc";
 } else {
     require_once 'geoip/geoip.inc';
     require_once 'geoip/geoipcity.inc';
 }
+// @codingStandardsIgnoreEnd
 
 /**
  * @description    GeoIP helper functions
  *
- * @category    Aligent
- * @package     Aligent_GeoIP
- * @copyright   Copyright (c) 2013 Aligent Consulting. (http://www.aligent.com.au)
- * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @category       Aligent
+ * @package        Aligent_GeoIP
+ * @copyright      Copyright (c) 2013 Aligent Consulting. (http://www.aligent.com.au)
+ * @license        http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *
  * @author         Luke Mills <luke@aligent.com.au>
  */
-class Aligent_GeoIP_Helper_Data extends Mage_Core_Helper_Abstract {
+class Aligent_GeoIP_Helper_Data extends Mage_Core_Helper_Abstract
+{
 
     const VARNISH_XGEOIP_SERVER_VARIABLE = 'HTTP_X_GEOIP';
-    const VARNISH_XGEOIP_SERVER_HEADER = 'X-GeoIP';
+    const VARNISH_XGEOIP_SERVER_HEADER   = 'X-GeoIP';
 
     /**
      * Autodetects the country based on the following fallback mechanism: 1. Varnish, 2. The user's IP.
+     *
      * @return string|false         The two letter country code or false if none was found.
      */
     public function autodetectCountry()
     {
-        $country = false;
+        $country          = false;
         $detectionMethods = array(
-            function() {
+            function () {
                 if (!Mage::getIsDeveloperMode()) {
                     return false;
                 }
+
                 return Mage::app()->getRequest()->getParam('___pretend_country', false);
             },
             array($this, 'getCountryFromVarnish'),
             function () {
                 $geoipHelper = Mage::helper('aligent_geoip');
+
                 return $geoipHelper->getCountryByIpv4Addr($geoipHelper->getUserIpv4Addr());
             },
         );
@@ -53,34 +59,39 @@ class Aligent_GeoIP_Helper_Data extends Mage_Core_Helper_Abstract {
                 break;
             }
         }
+
         return $country;
     }
 
     /**
      * Returns the two letter country code for $ipAddr.
-     * @param string    $ipAddr     The IP address in dot-decimal form.
+     *
+     * @param string $ipAddr The IP address in dot-decimal form.
+     *
      * @return string|false         The two letter country code or false if none was found.
      */
     public function getCountryByIpv4Addr($ipAddr)
     {
         $country = null;
-        $gi = $this->geoipOpen('geoip/GeoIP.dat', GEOIP_STANDARD);
+        $gi      = $this->geoipOpen('geoip/GeoIP.dat', GEOIP_STANDARD);
         $country = geoip_country_code_by_addr($gi, $ipAddr);
         geoip_close($gi);
+
         return $country != '' ? $country : false;
     }
 
-
     public function getRecordByIpv4Addr()
     {
-        $ip = $this->getUserIpv4Addr();
-        $gi = $this->geoipOpen("geoip/GeoLiteCity.dat",GEOIP_STANDARD);
-        $record = geoip_record_by_addr($gi,$ip);
+        $ip     = $this->getUserIpv4Addr();
+        $gi     = $this->geoipOpen("geoip/GeoLiteCity.dat", GEOIP_STANDARD);
+        $record = geoip_record_by_addr($gi, $ip);
+
         return $record;
     }
 
     /**
      * Returns the two letter country code that was set in the X-GeoIP server variable.
+     *
      * @return string|false         The two letter country code or false if none was found / unknown.
      */
     public function getCountryFromVarnish()
@@ -92,6 +103,7 @@ class Aligent_GeoIP_Helper_Data extends Mage_Core_Helper_Abstract {
                 return false;
             }
         }
+
         return $country;
     }
 
@@ -105,7 +117,15 @@ class Aligent_GeoIP_Helper_Data extends Mage_Core_Helper_Abstract {
      */
     public function getUserIpv4Addr()
     {
-        foreach (array('HTTP_CLIENT_IP', 'HTTP_X_FORWARDED_FOR', 'HTTP_X_FORWARDED', 'HTTP_X_CLUSTER_CLIENT_IP', 'HTTP_FORWARDED_FOR', 'HTTP_FORWARDED', 'REMOTE_ADDR') as $key) {
+        foreach (array(
+                     'HTTP_CLIENT_IP',
+                     'HTTP_X_FORWARDED_FOR',
+                     'HTTP_X_FORWARDED',
+                     'HTTP_X_CLUSTER_CLIENT_IP',
+                     'HTTP_FORWARDED_FOR',
+                     'HTTP_FORWARDED',
+                     'REMOTE_ADDR'
+                 ) as $key) {
             if (array_key_exists($key, $_SERVER)) {
                 foreach (explode(',', $_SERVER[$key]) as $ip) {
                     if (filter_var($ip, FILTER_VALIDATE_IP) !== false) {
@@ -114,19 +134,24 @@ class Aligent_GeoIP_Helper_Data extends Mage_Core_Helper_Abstract {
                 }
             }
         }
+
         return false;
     }
 
-    private function geoipOpen($filename, $flags) {
+    private function geoipOpen($filename, $flags)
+    {
         $_filename = $filename;
         try {
             // First look for file on the include path
-            if ((function_exists('stream_resolve_include_path') && $_filename = stream_resolve_include_path($filename)) === false) {
+            if ((function_exists('stream_resolve_include_path')
+                    && $_filename = stream_resolve_include_path($filename)) === false
+            ) {
                 // Then look for the file relative to the Magento root.
                 if (!file_exists($_filename = Mage::getBaseDir() . DS . $filename)) {
-                    throw new Exception (sprintf('Unable to find file: "%s"', $filename));
+                    throw new Exception(sprintf('Unable to find file: "%s"', $filename));
                 }
             }
+
             return geoip_open($_filename, $flags);
         } catch (Exception $e) {
             $message = $e->getMessage();
@@ -140,5 +165,4 @@ class Aligent_GeoIP_Helper_Data extends Mage_Core_Helper_Abstract {
             throw $e;
         }
     }
-
 }
