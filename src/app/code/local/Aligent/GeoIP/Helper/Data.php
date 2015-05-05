@@ -64,6 +64,30 @@ class Aligent_GeoIP_Helper_Data extends Mage_Core_Helper_Abstract
     }
 
     /**
+     * Autodetects the user location based on the the user's IP.
+     *
+     * @return array|false
+     */
+    public function autodetectRecord()
+    {
+        $record           = false;
+        $detectionMethods = array(
+            function () {
+                $geoipHelper = Mage::helper('aligent_geoip');
+                return $geoipHelper->getRecordByIpv4Addr($geoipHelper->getUserIpv4Addr());
+            },
+        );
+        foreach ($detectionMethods as $detectionMethod) {
+            $record = call_user_func($detectionMethod);
+            if (false !== $record) {
+                break;
+            }
+        }
+
+        return $record;
+    }
+
+    /**
      * Returns the two letter country code for $ipAddr.
      *
      * @param string $ipAddr The IP address in dot-decimal form.
@@ -80,13 +104,15 @@ class Aligent_GeoIP_Helper_Data extends Mage_Core_Helper_Abstract
         return $country != '' ? $country : false;
     }
 
-    public function getRecordByIpv4Addr()
+    public function getRecordByIpv4Addr($ipAddr = false)
     {
-        $ip     = $this->getUserIpv4Addr();
+        if (!$ipAddr) {
+            $ipAddr = $this->getUserIpv4Addr();
+        }
         $gi     = $this->geoipOpen("geoip/GeoLiteCity.dat", GEOIP_STANDARD);
-        $record = geoip_record_by_addr($gi, $ip);
+        $record = geoip_record_by_addr($gi, $ipAddr);
 
-        return $record;
+        return $record !== '' ? $record : false;
     }
 
     /**
