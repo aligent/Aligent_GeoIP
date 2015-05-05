@@ -45,7 +45,7 @@ class Aligent_GeoIP_Model_Observer
     public function enforceCountryGeoblock(Varien_Event_Observer $oEvent)
     {
         $vCountryCode = Mage::helper('aligent_geoip')->autodetectCountry();
-        if ($vCountryCode !== false) {
+        if ($vCountryCode !== false && !empty($vCountryCode)) {
             $aBlockedCountries = explode(',', Mage::getStoreConfig(self::CONFIG_COUNTRY_GEOBLOCK));
             if (in_array($vCountryCode, $aBlockedCountries)) {
                 $oCmsPage    = Mage::getModel('cms/page')->load(
