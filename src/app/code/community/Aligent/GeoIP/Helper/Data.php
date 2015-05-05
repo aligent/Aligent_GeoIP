@@ -103,7 +103,7 @@ class Aligent_GeoIP_Helper_Data extends Mage_Core_Helper_Abstract
         $country = geoip_country_code_by_addr($gi, $ipAddr);
         geoip_close($gi);
 
-        return $country !== '' ? $country : false;
+        return $country !== null ? $country : false;
     }
 
     public function getRecordByIpv4Addr($ipAddr = false)
@@ -114,7 +114,7 @@ class Aligent_GeoIP_Helper_Data extends Mage_Core_Helper_Abstract
         $gi     = $this->geoipOpen("geoip/GeoLiteCity.dat", GEOIP_STANDARD);
         $record = geoip_record_by_addr($gi, $ipAddr);
 
-        return $record !== '' ? $record : false;
+        return $record !== null ? $record : false;
     }
 
     /**
