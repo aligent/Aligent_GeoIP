@@ -7,7 +7,7 @@ class Aligent_GeoIP_Model_Cron {
     }
 
     public function runUpdateGeolitecity() {
-        $this->_runUpdate('aligent_geoip/geoip/autoupdate_geolitecity', 'GeoLiteCity.dat.gz');
+        $this->_runUpdate('aligent_geoip/geoip/autoupdate_geoipcity', 'GeoLiteCity.dat.gz');
     }
 
     protected function _runUpdate($vStoreKey, $vFilename) {
