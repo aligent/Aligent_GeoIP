@@ -42,6 +42,33 @@
                             <show_in_store>1</show_in_store>
                             <can_be_empty>0</can_be_empty>
                         </redirect_cms>
+                        <folder translate="label">
+                            <label>GeoIP base folder</label>
+                            <frontend_type>text</frontend_type>
+                            <comment>Absolute paths (paths beginning with a /) are from the root of the file system. Relative paths are relative to the Magento base directory. Include a trailing slash.</comment>
+                            <sort_order>30</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </folder>
+                        <autoupdate_geoip>
+                            <label>Autoupdate GeoIP.dat</label>
+                            <frontend_type>text</frontend_type>
+                            <comment>Enter the URL to automatically update the GeoIP.dat file. See http://dev.maxmind.com/geoip/legacy/install/country/ for a free download. Leave blank to disable auto update.</comment>
+                            <sort_order>40</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </autoupdate_geoip>
+                        <autoupdate_geoipcity>
+                            <label>Autoupdate GeoLiteCity.dat</label>
+                            <frontend_type>text</frontend_type>
+                            <comment>Enter the URL to automatically update the GeoLiteCity.dat file. See http://dev.maxmind.com/geoip/legacy/install/city/ for a free download. Leave blank to disable auto update.</comment>
+                            <sort_order>50</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </autoupdate_geoipcity>
                     </fields>
                 </geoip>
             </groups>
