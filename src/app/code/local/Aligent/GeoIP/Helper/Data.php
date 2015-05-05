@@ -94,14 +94,16 @@ class Aligent_GeoIP_Helper_Data extends Mage_Core_Helper_Abstract
      *
      * @return string|false         The two letter country code or false if none was found.
      */
-    public function getCountryByIpv4Addr($ipAddr)
+    public function getCountryByIpv4Addr($ipAddr = false)
     {
-        $country = null;
+        if (!$ipAddr) {
+            $ipAddr = $this->getUserIpv4Addr();
+        }
         $gi      = $this->geoipOpen('geoip/GeoIP.dat', GEOIP_STANDARD);
         $country = geoip_country_code_by_addr($gi, $ipAddr);
         geoip_close($gi);
 
-        return $country != '' ? $country : false;
+        return $country !== '' ? $country : false;
     }
 
     public function getRecordByIpv4Addr($ipAddr = false)
@@ -164,7 +166,7 @@ class Aligent_GeoIP_Helper_Data extends Mage_Core_Helper_Abstract
         return false;
     }
 
-    private function geoipOpen($filename, $flags)
+    protected function geoipOpen($filename, $flags)
     {
         $_filename = $filename;
         try {
