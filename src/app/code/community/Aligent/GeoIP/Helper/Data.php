@@ -98,12 +98,12 @@ class Aligent_GeoIP_Helper_Data extends Mage_Core_Helper_Abstract
      */
     public function getCountryByIpv4Addr($ipAddr = false)
     {
-        $country = null;
+        $country = "";
         $gi = $this->geoipOpen('GeoIP.dat', GEOIP_STANDARD);
         $country = geoip_country_code_by_addr($gi, $ipAddr);
         geoip_close($gi);
 
-        return $country !== null ? $country : false;
+        return $country != "" ? $country : false;
     }
 
     public function getRecordByIpv4Addr($ipAddr = false)
