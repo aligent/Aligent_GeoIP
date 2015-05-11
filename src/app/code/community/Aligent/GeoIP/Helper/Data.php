@@ -30,6 +30,8 @@ class Aligent_GeoIP_Helper_Data extends Mage_Core_Helper_Abstract
     const VARNISH_XGEOIP_SERVER_VARIABLE = 'HTTP_X_GEOIP';
     const VARNISH_XGEOIP_SERVER_HEADER   = 'X-GeoIP';
 
+    protected $geoIpDatDirs = array('/usr/share/GeoIP', 'geoip');
+
     /**
      * Autodetects the country based on the following fallback mechanism: 1. Varnish, 2. The user's IP.
      *
@@ -96,10 +98,8 @@ class Aligent_GeoIP_Helper_Data extends Mage_Core_Helper_Abstract
      */
     public function getCountryByIpv4Addr($ipAddr = false)
     {
-        if (!$ipAddr) {
-            $ipAddr = $this->getUserIpv4Addr();
-        }
-        $gi      = $this->geoipOpen('geoip/GeoIP.dat', GEOIP_STANDARD);
+        $country = null;
+        $gi = $this->geoipOpen('GeoIP.dat', GEOIP_STANDARD);
         $country = geoip_country_code_by_addr($gi, $ipAddr);
         geoip_close($gi);
 
@@ -108,13 +108,10 @@ class Aligent_GeoIP_Helper_Data extends Mage_Core_Helper_Abstract
 
     public function getRecordByIpv4Addr($ipAddr = false)
     {
-        if (!$ipAddr) {
-            $ipAddr = $this->getUserIpv4Addr();
-        }
-        $gi     = $this->geoipOpen("geoip/GeoLiteCity.dat", GEOIP_STANDARD);
-        $record = geoip_record_by_addr($gi, $ipAddr);
-
-        return $record !== null ? $record : false;
+        $ip = $this->getUserIpv4Addr();
+        $gi = $this->geoipOpen('GeoLiteCity.dat', GEOIP_STANDARD);
+        $record = geoip_record_by_addr($gi,$ip);
+        return $record;
     }
 
     /**
@@ -170,13 +167,19 @@ class Aligent_GeoIP_Helper_Data extends Mage_Core_Helper_Abstract
     {
         $_filename = $filename;
         try {
-            // First look for file on the include path
-            if ((function_exists('stream_resolve_include_path')
-                    && $_filename = stream_resolve_include_path($filename)) === false
-            ) {
-                // Then look for the file relative to the Magento root.
-                if (!file_exists($_filename = Mage::getBaseDir() . DS . $filename)) {
-                    throw new Exception(sprintf('Unable to find file: "%s"', $filename));
+            foreach ($this->geoIpDatDirs as $dir) {
+                $datFilePath = $dir . DS . $filename;
+                if (strpos($datFilePath, '/') !== 0) {
+                    // First look for file on the include path
+                    if ((function_exists('stream_resolve_include_path') && $_filename = stream_resolve_include_path($datFilePath)) === false) {
+                        // Then look for the file relative to the Magento root.
+                        if (!file_exists($_filename = Mage::getBaseDir() . DS . $datFilePath)) {
+                            throw new Exception (sprintf('Unable to find file: "%s"', $datFilePath));
+                        }
+                    }
+                } elseif (file_exists($datFilePath)) {
+                    $_filename = $datFilePath;
+                    break;
                 }
             }
 
