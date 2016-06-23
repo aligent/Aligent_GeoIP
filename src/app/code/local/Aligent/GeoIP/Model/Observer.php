@@ -13,24 +13,27 @@ class Aligent_GeoIP_Model_Observer {
     public function setVarnishResponseHeader() {
 
         $aHeaders = Mage::helper('aligent_geoip')->aGeoIpHeaders;
+        $oResponse = Mage::app()->getResponse();
+
 
         // If Varnish supplies a store id header, vary the response based on the store id.
-        foreach ($aHeaders as $vHeader) {
-            $vServerVariable = 'HTTP_' . $vHeader;
-            if (array_key_exists($vServerVariable, $_SERVER)) {
-                $aHeaders[] = $vHeader;
-            }
+        if (array_key_exists(self::VARNISH_STOREID_SERVER_VARIABLE, $_SERVER)) {
+            $aHeaders[] = self::VARNISH_STOREID_HEADER;
         }
 
-        $oResponse = Mage::app()->getResponse();
         $oResponse->setHeader('Vary', implode(', ', $aHeaders) , true);
 
         // Put the request store id and country into server vars.  Useful for debugging.
         //if (array_key_exists(self::VARNISH_STORE_ID_HEADER, $_SERVER)) {
         //    $oResponse->setHeader('X-Request-StoreId', $_SERVER[self::VARNISH_STORE_ID_HEADER]);
         //}
-        if (array_key_exists(Aligent_GeoIP_Helper_Data::VARNISH_XGEOIP_SERVER_VARIABLE, $_SERVER)) {
-            $oResponse->setHeader('X-Request-GeoIP', $_SERVER[Aligent_GeoIP_Helper_Data::VARNISH_XGEOIP_SERVER_VARIABLE]);
+
+        foreach ($aHeaders as $vHeader) {
+            $vServerVariable = 'HTTP_' . $vHeader;
+            if (array_key_exists($vServerVariable, $_SERVER)) {
+                // Put a debugging header, so its easier to debug geo ip issue
+                $oResponse->setHeader('DEBUG-' . $vHeader, $_SERVER[$vServerVariable]);
+            }
         }
     }
 
