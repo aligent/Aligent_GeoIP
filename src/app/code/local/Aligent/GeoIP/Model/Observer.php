@@ -11,11 +11,15 @@ class Aligent_GeoIP_Model_Observer {
      * on country and store id if appropriate.
      */
     public function setVarnishResponseHeader() {
-        $aHeaders = array(Aligent_GeoIP_Helper_Data::VARNISH_XGEOIP_SERVER_HEADER);
+
+        $aHeaders = Mage::helper('aligent_geoip')->aGeoIpHeaders;
 
         // If Varnish supplies a store id header, vary the response based on the store id.
-        if (array_key_exists(self::VARNISH_STOREID_SERVER_VARIABLE, $_SERVER)) {
-            $aHeaders[] = self::VARNISH_STOREID_HEADER;
+        foreach ($aHeaders as $vHeader) {
+            $vServerVariable = 'HTTP_' . $vHeader;
+            if (array_key_exists($vServerVariable, $_SERVER)) {
+                $aHeaders[] = $vHeader;
+            }
         }
 
         $oResponse = Mage::app()->getResponse();
