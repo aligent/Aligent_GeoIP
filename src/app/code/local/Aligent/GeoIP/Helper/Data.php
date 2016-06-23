@@ -26,6 +26,12 @@ class Aligent_GeoIP_Helper_Data extends Mage_Core_Helper_Abstract {
 
     const VARNISH_XGEOIP_SERVER_VARIABLE = 'HTTP_X_GEOIP';
     const VARNISH_XGEOIP_SERVER_HEADER = 'X-GeoIP';
+    const CLOUDFLARE_GEOIP_SERVER_HEADER = 'CF-IPCountry';
+    const CLOUDFLARE_GEOIP_SERVER_VARIABLE = 'CF_IPCOUNTRY';
+    public $aGeoIpHeaders = array(
+        self::VARNISH_XGEOIP_SERVER_HEADER   => self::VARNISH_XGEOIP_SERVER_VARIABLE,
+        self::CLOUDFLARE_GEOIP_SERVER_HEADER => self::CLOUDFLARE_GEOIP_SERVER_VARIABLE,
+    );
 
     protected $geoIpDatDirs = array('/usr/share/GeoIP', 'geoip');
 
@@ -88,10 +94,13 @@ class Aligent_GeoIP_Helper_Data extends Mage_Core_Helper_Abstract {
     public function getCountryFromVarnish()
     {
         $country = false;
-        if (isset($_SERVER[self::VARNISH_XGEOIP_SERVER_VARIABLE])) {
-            $country = $_SERVER[self::VARNISH_XGEOIP_SERVER_VARIABLE];
-            if (!is_string($country) || '' == $country || 'unknown' == strtolower($country)) {
-                return false;
+
+        foreach ($this->aGeoIpHeaders as $vHeader => $vServerVariable) {
+            if (isset($_SERVER[$vServerVariable])) {
+                $country = $_SERVER[$vServerVariable];
+                if (!is_string($country) || '' == $country || 'unknown' == strtolower($country)) {
+                    return false;
+                }
             }
         }
         return $country;
@@ -150,5 +159,4 @@ class Aligent_GeoIP_Helper_Data extends Mage_Core_Helper_Abstract {
             throw $e;
         }
     }
-
 }
