@@ -31,7 +31,7 @@ class Aligent_GeoIP_Model_Observer {
         foreach ($aHeaders as $vHeader => $vServerVariable) {
             if (array_key_exists($vServerVariable, $_SERVER)) {
                 // Put a debugging header, so its easier to debug geo ip issue
-                $oResponse->setHeader('DEBUG-' . $vHeader, $_SERVER[$vServerVariable]);
+                $oResponse->setHeader('X-Request-' . $vHeader, $_SERVER[$vServerVariable]);
             }
         }
     }
