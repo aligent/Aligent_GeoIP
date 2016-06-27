@@ -28,7 +28,7 @@ class Aligent_GeoIP_Model_Observer {
         //    $oResponse->setHeader('X-Request-StoreId', $_SERVER[self::VARNISH_STORE_ID_HEADER]);
         //}
 
-        foreach ($aHeaders as $vHeader => $vServerVariable) {
+        foreach (Mage::helper('aligent_geoip')->aGeoIpHeaders as $vHeader => $vServerVariable) {
             if (array_key_exists($vServerVariable, $_SERVER)) {
                 // Put a debugging header, so its easier to debug geo ip issue
                 $oResponse->setHeader('X-Request-' . $vHeader, $_SERVER[$vServerVariable]);

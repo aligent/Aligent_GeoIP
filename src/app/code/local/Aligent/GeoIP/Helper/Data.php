@@ -1,16 +1,5 @@
 <?php
 
-// Require files from composer package if available, otherwise fall back to old location.
-if (file_exists(Mage::getBaseDir()."/vendor/geoip/geoip/src/geoip.inc")) {
-    require_once Mage::getBaseDir()."/vendor/geoip/geoip/src/geoip.inc";
-    require_once Mage::getBaseDir()."/vendor/geoip/geoip/src/geoipcity.inc";
-} elseif (file_exists(Mage::getBaseDir()."/geoip/geoip.inc")) {
-    require_once Mage::getBaseDir()."/geoip/geoip.inc";
-    require_once Mage::getBaseDir()."/geoip/geoipcity.inc";
-} else {
-    require_once 'geoip/geoip.inc';
-    require_once 'geoip/geoipcity.inc';
-}
 
 /**
  * @description    GeoIP helper functions
@@ -35,6 +24,31 @@ class Aligent_GeoIP_Helper_Data extends Mage_Core_Helper_Abstract {
 
     protected $geoIpDatDirs = array('/usr/share/GeoIP', 'geoip');
 
+    /**
+     * Aligent_GeoIP_Helper_Data constructor
+     *
+     * can use rewrite to change include paths completely if needed
+     *
+     */
+    public function __construct()
+    {
+        // Prefers local overwrites if present, otherwise fallsback to vendor
+        if (file_exists(Mage::getBaseDir() . "/geoip/geoip.inc")) {
+            require_once Mage::getBaseDir() . "/geoip/geoip.inc";
+            require_once Mage::getBaseDir() . "/geoip/geoipcity.inc";
+        }
+        elseif (file_exists('geoip/geoip.inc')) {
+            require_once 'geoip/geoip.inc';
+            require_once 'geoip/geoipcity.inc';
+        }
+        elseif (file_exists(Mage::getBaseDir() . "/vendor/geoip/geoip/src/geoip.inc")) {
+            require_once Mage::getBaseDir() . "/vendor/geoip/geoip/src/geoip.inc";
+            require_once Mage::getBaseDir() . "/vendor/geoip/geoip/src/geoipcity.inc";
+        }
+        else{
+            throw new Exception('unable to find any geo ip libraries');
+        }
+    }
     /**
      * Autodetects the country based on the following fallback mechanism: 1. Varnish, 2. The user's IP.
      * @return string|false         The two letter country code or false if none was found.
