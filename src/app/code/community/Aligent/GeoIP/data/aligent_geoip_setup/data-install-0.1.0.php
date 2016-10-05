@@ -4,10 +4,12 @@ $installer = $this;
 $installer->startSetup();
 
 ob_start();
+// @codingStandardsIgnoreStart -- Allow php tags in this case
 ?>
     <h1>Content Not Available</h1>
     <p>We're sorry, but this web site is not available in your country.</p>
 <?php
+// @codingStandardsIgnoreEnd
 
 $contents = ob_get_clean();
 
