@@ -1,17 +1,30 @@
 <?php
-
+// @codingStandardsIgnoreStart
+// Require files from composer package if available, otherwise fall back to old location.
+if (file_exists(Mage::getBaseDir() . "/vendor/geoip/geoip/src/geoip.inc")) {
+    require_once Mage::getBaseDir() . "/vendor/geoip/geoip/src/geoip.inc";
+    require_once Mage::getBaseDir() . "/vendor/geoip/geoip/src/geoipcity.inc";
+} elseif (file_exists(Mage::getBaseDir() . "/geoip/geoip.inc")) {
+    require_once Mage::getBaseDir() . "/geoip/geoip.inc";
+    require_once Mage::getBaseDir() . "/geoip/geoipcity.inc";
+} else {
+    require_once 'geoip/geoip.inc';
+    require_once 'geoip/geoipcity.inc';
+}
+// @codingStandardsIgnoreEnd
 
 /**
  * @description    GeoIP helper functions
  *
- * @category    Aligent
- * @package     Aligent_GeoIP
- * @copyright   Copyright (c) 2013 Aligent Consulting. (http://www.aligent.com.au)
- * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @category       Aligent
+ * @package        Aligent_GeoIP
+ * @copyright      Copyright (c) 2013 Aligent Consulting. (http://www.aligent.com.au)
+ * @license        http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  *
  * @author         Luke Mills <luke@aligent.com.au>
  */
-class Aligent_GeoIP_Helper_Data extends Mage_Core_Helper_Abstract {
+class Aligent_GeoIP_Helper_Data extends Mage_Core_Helper_Abstract
+{
 
     const VARNISH_XGEOIP_SERVER_VARIABLE = 'HTTP_X_GEOIP';
     const VARNISH_XGEOIP_SERVER_HEADER = 'X-GeoIP';
@@ -23,49 +36,27 @@ class Aligent_GeoIP_Helper_Data extends Mage_Core_Helper_Abstract {
     );
 
     protected $geoIpDatDirs = array('/usr/share/GeoIP', 'geoip');
-
-    /**
-     * Aligent_GeoIP_Helper_Data constructor
-     *
-     * can use rewrite to change include paths completely if needed
-     *
-     */
-    public function __construct()
-    {
-        // Prefers local overwrites if present, otherwise fallsback to vendor
-        if (file_exists(Mage::getBaseDir() . "/geoip/geoip.inc")) {
-            require_once Mage::getBaseDir() . "/geoip/geoip.inc";
-            require_once Mage::getBaseDir() . "/geoip/geoipcity.inc";
-        }
-        elseif (file_exists('geoip/geoip.inc')) {
-            require_once 'geoip/geoip.inc';
-            require_once 'geoip/geoipcity.inc';
-        }
-        elseif (file_exists(Mage::getBaseDir() . "/vendor/geoip/geoip/src/geoip.inc")) {
-            require_once Mage::getBaseDir() . "/vendor/geoip/geoip/src/geoip.inc";
-            require_once Mage::getBaseDir() . "/vendor/geoip/geoip/src/geoipcity.inc";
-        }
-        else{
-            throw new Exception('unable to find any geo ip libraries');
-        }
-    }
+    
     /**
      * Autodetects the country based on the following fallback mechanism: 1. Varnish, 2. The user's IP.
+     *
      * @return string|false         The two letter country code or false if none was found.
      */
     public function autodetectCountry()
     {
-        $country = false;
+        $country          = false;
         $detectionMethods = array(
-            function() {
+            function () {
                 if (!Mage::getIsDeveloperMode()) {
                     return false;
                 }
+
                 return Mage::app()->getRequest()->getParam('___pretend_country', false);
             },
             array($this, 'getCountryFromVarnish'),
             function () {
                 $geoipHelper = Mage::helper('aligent_geoip');
+
                 return $geoipHelper->getCountryByIpv4Addr($geoipHelper->getUserIpv4Addr());
             },
         );
@@ -75,25 +66,52 @@ class Aligent_GeoIP_Helper_Data extends Mage_Core_Helper_Abstract {
                 break;
             }
         }
+
         return $country;
     }
 
     /**
+     * Autodetects the user location based on the the user's IP.
+     *
+     * @return array|false
+     */
+    public function autodetectRecord()
+    {
+        $record           = false;
+        $detectionMethods = array(
+            function () {
+                $geoipHelper = Mage::helper('aligent_geoip');
+                return $geoipHelper->getRecordByIpv4Addr($geoipHelper->getUserIpv4Addr());
+            },
+        );
+        foreach ($detectionMethods as $detectionMethod) {
+            $record = call_user_func($detectionMethod);
+            if (false !== $record) {
+                break;
+            }
+        }
+
+        return $record;
+    }
+
+    /**
      * Returns the two letter country code for $ipAddr.
-     * @param string    $ipAddr     The IP address in dot-decimal form.
+     *
+     * @param string $ipAddr The IP address in dot-decimal form.
+     *
      * @return string|false         The two letter country code or false if none was found.
      */
-    public function getCountryByIpv4Addr($ipAddr)
+    public function getCountryByIpv4Addr($ipAddr = false)
     {
-        $country = null;
+        $country = "";
         $gi = $this->geoipOpen('GeoIP.dat', GEOIP_STANDARD);
         $country = geoip_country_code_by_addr($gi, $ipAddr);
         geoip_close($gi);
-        return $country != '' ? $country : false;
+
+        return $country != "" ? $country : false;
     }
 
-
-    public function getRecordByIpv4Addr()
+    public function getRecordByIpv4Addr($ipAddr = false)
     {
         $ip = $this->getUserIpv4Addr();
         $gi = $this->geoipOpen('GeoLiteCity.dat', GEOIP_STANDARD);
@@ -103,6 +121,7 @@ class Aligent_GeoIP_Helper_Data extends Mage_Core_Helper_Abstract {
 
     /**
      * Returns the two letter country code that was set in the X-GeoIP server variable.
+     *
      * @return string|false         The two letter country code or false if none was found / unknown.
      */
     public function getCountryFromVarnish()
@@ -117,6 +136,7 @@ class Aligent_GeoIP_Helper_Data extends Mage_Core_Helper_Abstract {
                 }
             }
         }
+
         return $country;
     }
 
@@ -130,7 +150,15 @@ class Aligent_GeoIP_Helper_Data extends Mage_Core_Helper_Abstract {
      */
     public function getUserIpv4Addr()
     {
-        foreach (array('HTTP_CLIENT_IP', 'HTTP_X_FORWARDED_FOR', 'HTTP_X_FORWARDED', 'HTTP_X_CLUSTER_CLIENT_IP', 'HTTP_FORWARDED_FOR', 'HTTP_FORWARDED', 'REMOTE_ADDR') as $key) {
+        foreach (array(
+                     'HTTP_CLIENT_IP',
+                     'HTTP_X_FORWARDED_FOR',
+                     'HTTP_X_FORWARDED',
+                     'HTTP_X_CLUSTER_CLIENT_IP',
+                     'HTTP_FORWARDED_FOR',
+                     'HTTP_FORWARDED',
+                     'REMOTE_ADDR'
+                 ) as $key) {
             if (array_key_exists($key, $_SERVER)) {
                 foreach (explode(',', $_SERVER[$key]) as $ip) {
                     if (filter_var($ip, FILTER_VALIDATE_IP) !== false) {
@@ -139,10 +167,12 @@ class Aligent_GeoIP_Helper_Data extends Mage_Core_Helper_Abstract {
                 }
             }
         }
+
         return false;
     }
 
-    private function geoipOpen($filename, $flags) {
+    protected function geoipOpen($filename, $flags)
+    {
         $_filename = $filename;
         try {
             foreach ($this->geoIpDatDirs as $dir) {
@@ -160,6 +190,7 @@ class Aligent_GeoIP_Helper_Data extends Mage_Core_Helper_Abstract {
                     break;
                 }
             }
+
             return geoip_open($_filename, $flags);
         } catch (Exception $e) {
             $message = $e->getMessage();

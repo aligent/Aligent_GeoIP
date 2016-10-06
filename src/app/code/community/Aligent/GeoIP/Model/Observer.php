@@ -1,10 +1,12 @@
 <?php
-class Aligent_GeoIP_Model_Observer {
+class Aligent_GeoIP_Model_Observer
+{
+
     const VARNISH_STOREID_SERVER_VARIABLE = 'HTTP_X_STOREID';
-    const VARNISH_STOREID_HEADER = 'X-StoreId';
+    const VARNISH_STOREID_HEADER          = 'X-StoreId';
 
     const CONFIG_COUNTRY_GEOBLOCK = 'aligent_geoip/geoip/block_countries';
-    const CONFIG_REDIRECT_CMS = 'aligent_geoip/geoip/redirect_cms';
+    const CONFIG_REDIRECT_CMS     = 'aligent_geoip/geoip/redirect_cms';
 
     /**
      * Inserts a header into the response to allow Varnish to cache pages based
@@ -13,21 +15,18 @@ class Aligent_GeoIP_Model_Observer {
     public function setVarnishResponseHeader() {
 
         $aHeaders = array_keys(Mage::helper('aligent_geoip')->aGeoIpHeaders);
-        $oResponse = Mage::app()->getResponse();
-
-
         // If Varnish supplies a store id header, vary the response based on the store id.
         if (array_key_exists(self::VARNISH_STOREID_SERVER_VARIABLE, $_SERVER)) {
             $aHeaders[] = self::VARNISH_STOREID_HEADER;
         }
 
-        $oResponse->setHeader('Vary', implode(', ', $aHeaders) , true);
+        $oResponse = Mage::app()->getResponse();
+        $oResponse->setHeader('Vary', implode(', ', $aHeaders), true);
 
         // Put the request store id and country into server vars.  Useful for debugging.
         //if (array_key_exists(self::VARNISH_STORE_ID_HEADER, $_SERVER)) {
         //    $oResponse->setHeader('X-Request-StoreId', $_SERVER[self::VARNISH_STORE_ID_HEADER]);
         //}
-
         foreach (Mage::helper('aligent_geoip')->aGeoIpHeaders as $vHeader => $vServerVariable) {
             if (array_key_exists($vServerVariable, $_SERVER)) {
                 // Put a debugging header, so its easier to debug geo ip issue
@@ -36,37 +35,38 @@ class Aligent_GeoIP_Model_Observer {
         }
     }
 
-
     /**
      * Observe predispatch and enforce the blocking of access from certain
      * countries.
      *
      * @param Varien_Event_Observer $oEvent Event data
      */
-    public function enforceCountryGeoblock(Varien_Event_Observer $oEvent) {
+    public function enforceCountryGeoblock(Varien_Event_Observer $oEvent)
+    {
         $vCountryCode = Mage::helper('aligent_geoip')->autodetectCountry();
-        if ($vCountryCode !== false) {
+        if ($vCountryCode !== false && !empty($vCountryCode)) {
             $aBlockedCountries = explode(',', Mage::getStoreConfig(self::CONFIG_COUNTRY_GEOBLOCK));
             if (in_array($vCountryCode, $aBlockedCountries)) {
-                $oCmsPage = Mage::getModel('cms/page')->load(Mage::getStoreConfig(self::CONFIG_REDIRECT_CMS), 'identifier');
+                $oCmsPage    = Mage::getModel('cms/page')->load(
+                    Mage::getStoreConfig(self::CONFIG_REDIRECT_CMS),
+                    'identifier'
+                );
                 $vCmsPageUrl = Mage::helper('cms/page')->getPageUrl($oCmsPage->getId());
 
-                $oAction = $oEvent->getControllerAction();
+                $oAction  = $oEvent->getControllerAction();
                 $oRequest = $oAction->getRequest();
-                $vAction = $oRequest->getActionName();
+                $vAction  = $oRequest->getActionName();
 
                 // If in a geoblocked country, allow access to the specific CMS page, but nothing else.
                 if ($oRequest->getModuleName() != 'cms' ||
                     $oRequest->getControllerName() != 'page' ||
                     $oRequest->getActionName() != 'view' ||
-                    $oRequest->getParam('page_id') != $oCmsPage->getId()) {
+                    $oRequest->getParam('page_id') != $oCmsPage->getId()
+                ) {
                     $oAction->setFlag($vAction, Mage_Core_Controller_Varien_Action::FLAG_NO_DISPATCH, true);
                     $oAction->getResponse()->setRedirect($vCmsPageUrl);
                 }
-
             }
         }
-
     }
-    
 }

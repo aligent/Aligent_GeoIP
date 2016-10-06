@@ -67,6 +67,28 @@
             </resources>
         </acl>
     </adminhtml>
+    <crontab>
+        <jobs>
+            <aligent_geoip_update_geoip>
+                <schedule>
+                    <!-- The free GeoIP databases from MaxMind update first Tuesday every month. http://dev.maxmind.com/geoip/legacy/geolite/ -->
+                    <cron_expr>0 0 8 * *</cron_expr>
+                </schedule>
+                <run>
+                    <model>aligent_geoip/cron::runUpdateGeoip</model>
+                </run>
+            </aligent_geoip_update_geoip>
+            <aligent_geoip_update_geolitecity>
+                <schedule>
+                    <!-- The free GeoIP databases from MaxMind update first Tuesday every month. http://dev.maxmind.com/geoip/legacy/geolite/ -->
+                    <cron_expr>30 0 8 * *</cron_expr>
+                </schedule>
+                <run>
+                    <model>aligent_geoip/cron::runUpdateGeolitecity</model>
+                </run>
+            </aligent_geoip_update_geolitecity>
+        </jobs>
+    </crontab>
     <phpunit>
         <suite>
             <modules>
