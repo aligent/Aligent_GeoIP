@@ -1,17 +1,5 @@
 <?php
 
-// Require files from composer package if available, otherwise fall back to old location.
-if (file_exists(Mage::getBaseDir()."/vendor/geoip/geoip/src/geoip.inc")) {
-    require_once Mage::getBaseDir()."/vendor/geoip/geoip/src/geoip.inc";
-    require_once Mage::getBaseDir()."/vendor/geoip/geoip/src/geoipcity.inc";
-} elseif (file_exists(Mage::getBaseDir()."/geoip/geoip.inc")) {
-    require_once Mage::getBaseDir()."/geoip/geoip.inc";
-    require_once Mage::getBaseDir()."/geoip/geoipcity.inc";
-} else {
-    require_once 'geoip/geoip.inc';
-    require_once 'geoip/geoipcity.inc';
-}
-
 /**
  * @description    GeoIP helper functions
  *
@@ -28,6 +16,45 @@ class Aligent_GeoIP_Helper_Data extends Mage_Core_Helper_Abstract {
     const VARNISH_XGEOIP_SERVER_HEADER = 'X-GeoIP';
 
     protected $geoIpDatDirs = array('/usr/share/GeoIP', 'geoip');
+
+    public function __construct()
+    {
+        $this->includeDependencies();
+    }
+    protected function getDependencyLocations()
+    {
+        return array (
+            Mage::getBaseDir()."/vendor/geoip/geoip/src",
+            Mage::getBaseDir()."/geoip",
+            'geoip',
+            //composer is one level up from magento base
+            dirname(Mage::getBaseDir())."/vendor/geoip/geoip/src",
+            //composer is two level up from magento base
+            dirname(dirname(Mage::getBaseDir()))."/vendor/geoip/geoip/src",
+
+        );
+    }
+
+    /**
+     * Separate function so it can be overwritten for any custom library include logic
+     */
+    protected function includeDependencies()
+    {
+        $aLocations = $this->getDependencyLocations();
+        $bFound = false;
+        foreach ($aLocations as $vLocation) {
+            $vMainLibrary = $vLocation . '/geoip.inc';
+            $vCityLibrary = $vLocation . '/geoipcity.inc';
+            if (file_exists($vMainLibrary) && file_exists($vCityLibrary)){
+                require_once $vMainLibrary;
+                require_once  $vCityLibrary;
+                $bFound = true;
+            }
+        }
+        if (!$bFound){
+            throw new Exception('geo ip library not found');
+        }
+    }
 
     /**
      * Autodetects the country based on the following fallback mechanism: 1. Varnish, 2. The user's IP.
