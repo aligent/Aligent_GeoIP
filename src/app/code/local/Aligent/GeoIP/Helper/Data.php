@@ -79,6 +79,20 @@ class Aligent_GeoIP_Helper_Data extends Mage_Core_Helper_Abstract {
     }
 
     /**
+     * Autodetects the country name the user is currently in based on the following fallback mechanism: 1. Varnish, 2. The user's IP.
+     *
+     * @return string|false The country name or false if none was found.
+     */
+    public function autodetectCountryName() {
+        $countryCode = $this->autodetectCountry();
+        if (!$countryCode || !isset(self::$CountryNames[$countryCode])) {
+            return false;
+        }
+
+        return self::$CountryNames[$countryCode];
+    }
+
+    /**
      * Returns the two letter country code for $ipAddr.
      * @param string    $ipAddr     The IP address in dot-decimal form.
      * @return string|false         The two letter country code or false if none was found.
@@ -140,6 +154,23 @@ class Aligent_GeoIP_Helper_Data extends Mage_Core_Helper_Abstract {
             }
         }
         return false;
+    }
+
+    /**
+     * Get the country name adjective
+     * E.g. 'Australia' returns 'Australian'
+     *
+     * @param string $countryName The country name to adjective-ise
+     *
+     * @returns string The adjective, if known, otherwise the country that was passed in
+     */
+    public function getCountryNameAdjective($countryName) {
+        switch ($countryName) {
+            case "Australia":
+                return $this->__("Australian");
+            default:
+                return $countryName;
+        }
     }
 
     private function geoipOpen($filename, $flags) {
