@@ -106,6 +106,25 @@ class Aligent_GeoIP_Helper_Data extends Mage_Core_Helper_Abstract {
         return $country != '' ? $country : false;
     }
 
+    /** Returns the two letter continent code for the country associated with $ipAddr
+     * @param $ipAddr               The IP address in dot-decimal form.
+     * @return bool|null            The two letter continent code or false if none was found.
+     * @throws Exception
+     */
+    public function getContinentByIpv4Addr($ipAddr) {
+        $continent = null;
+        $gi = $this->geoipOpen('GeoIP.dat', GEOIP_STANDARD);
+        // do stuff
+
+        $country_id = geoip_country_id_by_addr($gi, $ipAddr);
+        if ($country_id !== false) {
+            $continent = $gi->GEOIP_CONTINENT_CODES[$country_id];
+        }
+
+        geoip_close($gi);
+        return $continent != '' ? $continent : false;
+    }
+
 
     public function getRecordByIpv4Addr()
     {
