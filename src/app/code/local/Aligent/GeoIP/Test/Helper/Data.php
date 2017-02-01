@@ -75,5 +75,13 @@ class Aligent_GeoIP_Test_Helper_Data extends EcomDev_PHPUnit_Test_Case
         $country = Mage::helper('aligent_geoip')->autodetectCountry();
         $this->assertSame($expected, $country);
     }
+
+    /**
+     * @dataProvider dataProvider
+     */
+    public function testGetContinentByIpv4Addr($ip, $expected) {
+        $continent = Mage::helper('aligent_geoip')->getContinentByIpv4Addr($ip);
+        $this->assertSame($expected, $continent);
+    }
     
 }
