@@ -22,7 +22,7 @@ class Aligent_GeoIP_Helper_Data extends Mage_Core_Helper_Abstract {
         self::CLOUDFLARE_GEOIP_SERVER_HEADER => self::CLOUDFLARE_GEOIP_SERVER_VARIABLE,
     );
 
-    protected $geoIpDatDirs = array('/usr/share/GeoIP', 'geoip');
+    protected $geoIpDatDirs = array('geoip', '/usr/share/GeoIP');
 
     /**
      * Aligent_GeoIP_Helper_Data constructor
