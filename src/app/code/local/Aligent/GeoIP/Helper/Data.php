@@ -197,17 +197,27 @@ class Aligent_GeoIP_Helper_Data extends Mage_Core_Helper_Abstract {
                 $datFilePath = $dir . DS . $filename;
                 if (strpos($datFilePath, '/') !== 0) {
                     // First look for file on the include path
-                    if ((function_exists('stream_resolve_include_path') && $_filename = stream_resolve_include_path($datFilePath)) === false) {
-                        // Then look for the file relative to the Magento root.
-                        if (!file_exists($_filename = Mage::getBaseDir() . DS . $datFilePath)) {
-                            throw new Exception (sprintf('Unable to find file: "%s"', $datFilePath));
+                    if (function_exists('stream_resolve_include_path')) {
+                        $_filename = stream_resolve_include_path($datFilePath);
+                        if ($_filename !== false) {
+                            break;
                         }
+                    }
+                    // Then look for the file relative to the Magento root.
+                    $_filename = Mage::getBaseDir() . DS . $datFilePath;
+                    if (file_exists($_filename)) {
+                        break;
                     }
                 } elseif (file_exists($datFilePath)) {
                     $_filename = $datFilePath;
                     break;
                 }
             }
+
+            if (!file_exists($_filename)) {
+                throw new Exception (sprintf('Unable to find file: "%s"', $_filename));
+            }
+
             return geoip_open($_filename, $flags);
         } catch (Exception $e) {
             $message = $e->getMessage();
