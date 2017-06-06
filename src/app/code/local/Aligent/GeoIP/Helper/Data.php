@@ -213,6 +213,11 @@ class Aligent_GeoIP_Helper_Data extends Mage_Core_Helper_Abstract {
                     break;
                 }
             }
+
+            if (!file_exists($_filename)) {
+                throw new Exception (sprintf('Unable to find file: "%s"', $_filename));
+            }
+
             return geoip_open($_filename, $flags);
         } catch (Exception $e) {
             $message = $e->getMessage();
