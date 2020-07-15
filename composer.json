@@ -4,8 +4,14 @@
   "license":"OSL-3.0",
   "homepage":"https://github.com/aligent/Aligent_GeoIP",
   "description":"This module provides a helper for various GeoIP related functions.",
+  "repositories": [
+      {
+        "type": "vcs",
+        "url": "git@github.com:maxmind/geoip-api-php.git"
+      }
+  ],
   "require":{
       "magento-hackathon/magento-composer-installer":"*",
-      "geoip/geoip": "v1.14"
+      "geoip/geoip": "v1.11"
   }
 }
