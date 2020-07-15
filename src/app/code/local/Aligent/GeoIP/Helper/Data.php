@@ -25,6 +25,35 @@ class Aligent_GeoIP_Helper_Data extends Mage_Core_Helper_Abstract {
     protected $geoIpDatDirs = array('geoip', '/usr/share/GeoIP');
 
     /**
+     * Autodetects the country based on the following fallback mechanism: 1. Varnish, 2. The user's IP.
+     * @return string|false         The two letter country code or false if none was found.
+     */
+    public function autodetectCountry()
+    {
+        $country = false;
+        $detectionMethods = array(
+            function() {
+                if (!Mage::getIsDeveloperMode()) {
+                    return false;
+                }
+                return Mage::app()->getRequest()->getParam('___pretend_country', false);
+            },
+            array($this, 'getCountryFromVarnish'),
+            function () {
+                $geoipHelper = Mage::helper('aligent_geoip');
+                return $geoipHelper->getCountryByIpv4Addr($geoipHelper->getUserIpv4Addr());
+            },
+        );
+        foreach ($detectionMethods as $detectionMethod) {
+            $country = call_user_func($detectionMethod);
+            if (false !== $country) {
+                break;
+            }
+        }
+        return $country;
+    }
+
+    /**
      * Autodetects the country name the user is currently in based on the following fallback mechanism: 1. Varnish, 2. The user's IP.
      *
      * @return string|false The country name or false if none was found.
