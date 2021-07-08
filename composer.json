@@ -6,6 +6,6 @@
   "description":"This module provides a helper for various GeoIP related functions.",
   "require":{
       "magento-hackathon/magento-composer-installer":"*",
-      "geoip/geoip": "v1.14"
+      "ext-geoip": "1.1.1"
   }
 }

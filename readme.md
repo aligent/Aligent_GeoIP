@@ -10,16 +10,17 @@ Description
 -----------
 This module provides a helper for various GeoIP related functions.
 This module makes use of the [Maxmind GeoIP API for PHP](https://github.com/maxmind/geoip-api-php), which must be installed
-in the root of the Magento project in a folder called `geoip`.
+as as an [extension](https://pecl.php.net/package/geoip) of PHP.
 
 Installation Instructions
 -------------------------
-1. Install the [Maxmind GeoIP API for PHP](https://github.com/maxmind/geoip-api-php) in `magento_root/geoip`.
-2. Install this module in the usual manner/
+1. Install the [extension](https://pecl.php.net/package/geoip)
+2. Install this module in the usual manner
 
 Uninstallation
 --------------
 1. Remove all extension files from your Magento installation
+2. Remove or disable the GeoIP PHP extension
 
 Support
 -------

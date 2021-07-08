@@ -25,31 +25,6 @@ class Aligent_GeoIP_Helper_Data extends Mage_Core_Helper_Abstract {
     protected $geoIpDatDirs = array('geoip', '/usr/share/GeoIP');
 
     /**
-     * Aligent_GeoIP_Helper_Data constructor
-     *
-     * can use rewrite to change include paths completely if needed
-     *
-     */
-    public function __construct()
-    {
-        // Prefers local overwrites if present, otherwise fallsback to vendor
-        if (file_exists(Mage::getBaseDir() . "/geoip/geoip.inc")) {
-            require_once Mage::getBaseDir() . "/geoip/geoip.inc";
-            require_once Mage::getBaseDir() . "/geoip/geoipcity.inc";
-        }
-        elseif (file_exists('geoip/geoip.inc')) {
-            require_once 'geoip/geoip.inc';
-            require_once 'geoip/geoipcity.inc';
-        }
-        elseif (file_exists(Mage::getBaseDir() . "/vendor/geoip/geoip/src/geoip.inc")) {
-            require_once Mage::getBaseDir() . "/vendor/geoip/geoip/src/geoip.inc";
-            require_once Mage::getBaseDir() . "/vendor/geoip/geoip/src/geoipcity.inc";
-        }
-        else{
-            throw new Exception('unable to find any geo ip libraries');
-        }
-    }
-    /**
      * Autodetects the country based on the following fallback mechanism: 1. Varnish, 2. The user's IP.
      * @return string|false         The two letter country code or false if none was found.
      */
@@ -99,10 +74,7 @@ class Aligent_GeoIP_Helper_Data extends Mage_Core_Helper_Abstract {
      */
     public function getCountryByIpv4Addr($ipAddr)
     {
-        $country = null;
-        $gi = $this->geoipOpen('GeoIP.dat', GEOIP_STANDARD);
-        $country = geoip_country_code_by_addr($gi, $ipAddr);
-        geoip_close($gi);
+        $country = geoip_country_code_by_name($ipAddr);
         return $country != '' ? $country : false;
     }
 
@@ -112,14 +84,7 @@ class Aligent_GeoIP_Helper_Data extends Mage_Core_Helper_Abstract {
      * @throws Exception
      */
     public function getContinentByIpv4Addr($ipAddr) {
-        $continent = null;
-        $gi = $this->geoipOpen('GeoIP.dat', GEOIP_STANDARD);
-        $country_id = geoip_country_id_by_addr($gi, $ipAddr);
-        if ($country_id !== false) {
-            $continent = $gi->GEOIP_CONTINENT_CODES[$country_id];
-        }
-
-        geoip_close($gi);
+        $continent = geoip_continent_code_by_name($ipAddr);
         return $continent != '' ? $continent : false;
     }
 
@@ -127,9 +92,7 @@ class Aligent_GeoIP_Helper_Data extends Mage_Core_Helper_Abstract {
     public function getRecordByIpv4Addr()
     {
         $ip = $this->getUserIpv4Addr();
-        $gi = $this->geoipOpen('GeoLiteCity.dat', GEOIP_STANDARD);
-        $record = geoip_record_by_addr($gi,$ip);
-        return $record;
+        return geoip_record_by_name($ip);
     }
 
     /**
@@ -187,48 +150,6 @@ class Aligent_GeoIP_Helper_Data extends Mage_Core_Helper_Abstract {
                 return $this->__("Australian");
             default:
                 return $countryName;
-        }
-    }
-
-    private function geoipOpen($filename, $flags) {
-        $_filename = $filename;
-        try {
-            foreach ($this->geoIpDatDirs as $dir) {
-                $datFilePath = $dir . DS . $filename;
-                if (strpos($datFilePath, '/') !== 0) {
-                    // First look for file on the include path
-                    if (function_exists('stream_resolve_include_path')) {
-                        $_filename = stream_resolve_include_path($datFilePath);
-                        if ($_filename !== false) {
-                            break;
-                        }
-                    }
-                    // Then look for the file relative to the Magento root.
-                    $_filename = Mage::getBaseDir() . DS . $datFilePath;
-                    if (file_exists($_filename)) {
-                        break;
-                    }
-                } elseif (file_exists($datFilePath)) {
-                    $_filename = $datFilePath;
-                    break;
-                }
-            }
-
-            if (!file_exists($_filename)) {
-                throw new Exception (sprintf('Unable to find file: "%s"', $_filename));
-            }
-
-            return geoip_open($_filename, $flags);
-        } catch (Exception $e) {
-            $message = $e->getMessage();
-            $message .= PHP_EOL;
-            $message .= sprintf('include_path = %s', get_include_path());
-            $message .= PHP_EOL;
-            $message .= sprintf('cwd = %s', getcwd());
-            $message .= PHP_EOL;
-            $file = Mage::getStoreConfig('dev/log/exception_file');
-            Mage::log("\n" . $message . $e->__toString(), Zend_Log::ERR, $file);
-            throw $e;
         }
     }
 }
